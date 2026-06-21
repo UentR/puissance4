@@ -2,6 +2,10 @@
 members = [
     "board",
     "player",
-    "bot"
+    "bot",
+    "arbitre"
 ]
-resolver = "2"
+resolver = "3"
+
+[profile.release]
+debug = true
