@@ -28,7 +28,6 @@ fn check_speed() {
             //     println!("Coup valide {} : {}", i, moves[i]);
             // }
 
-            // generate random int from 0 to nb_moves_valid - 1
             let idx = my_rng.random_range(0..nb_moves_valid);
             // println!("Coup choisi aléatoirement : {}", moves[idx]);
             let chosen_move = moves[idx];
@@ -98,16 +97,13 @@ fn start_game() {
         println!("{} a répondu : {}", nom_joueur, message);
 
         if message.starts_with("MOVE ") {
-            // On tente d'extraire le numéro de la colonne
             if let Ok(col) = message[5..].trim().parse::<u8>() {
                 
-                // On vérifie si le coup est valide sur le plateau
+                
                 if game_board.make_move(col) {
                     println!("Coup validé !");
                 } else {
                     println!("ERREUR : {} a tenté un coup invalide (colonne {}). On redemande.", nom_joueur, col);
-                    // Le `continue` permet de recommencer la boucle sans changer de tour
-                    // (red_turn n'a pas basculé puisque make_move a renvoyé false)
                     continue; 
                 }
             } else {
@@ -119,21 +115,21 @@ fn start_game() {
             continue;
         }
 
-        // 5. Vérification des conditions de victoire
         let status = game_board.get_game_status();
         if status != GameStatus::Ongoing {
-            // Envoi de l'état final du plateau pour affichage
             let final_board = game_board.to_network_string();
             let _ = writeln!(p1_socket, "{}", final_board);
             let _ = writeln!(p2_socket, "{}", final_board);
+
+            game_board.print_terminal();
 
             match status {
                 GameStatus::Connected { red_win: true } => println!("🏆 VICTOIRE DU JOUEUR 1 (ROUGE) !"),
                 GameStatus::Connected { red_win: false } => println!("🏆 VICTOIRE DU JOUEUR 2 (JAUNE) !"),
                 GameStatus::Draw => println!("🤝 MATCH NUL ! Le plateau est plein."),
-                _ => {} // Ne devrait jamais arriver grâce au if
+                _ => {}
             }
-            break; // On sort de la boucle, la partie est finie
+            break;
         }
     }
 }

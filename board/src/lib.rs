@@ -53,8 +53,8 @@ impl Board {
 
 
         for &col in &Self::MOVE_ORDER {
-            if (valid_cols & (1 << col)) != 0 {
-                moves[count] = col+1;
+            if (valid_cols & (1 << (6-col))) != 0 {
+                moves[count] = col;
                 count += 1;
             }
         }
@@ -65,16 +65,20 @@ impl Board {
     pub fn make_move(&mut self, col: u8) -> bool {
         let state: u64 = (self.red | self.yellow) & FULL_BOARD;
 
-        if (col < 1) || (col > WIDTH) {
+        if col >= WIDTH {
             return false;
         }
 
-        let mask: u64 = COL_MASK << (7-col);
+        let mask: u64 = COL_MASK << (6-col);
         
         let curr_col_mask: u64 = (!state)&mask;
         let max_row: u64 = ((curr_col_mask << WIDTH) ^ curr_col_mask) & FULL_BOARD;
         let idx = max_row.trailing_zeros();
         
+        if curr_col_mask == 0 {
+            return false;
+        }
+
         if self.red_turn {
             self.red |= 1 << idx;
             self.red &= FULL_BOARD;
@@ -95,18 +99,18 @@ impl Board {
         for i in (0..(WIDTH*HEIGHT)).rev() {
             let mask: u64 = 1 << i;
             if self.red & mask > 0 {
-                print!("R ");
+                print!("🔴");
             } else if self.yellow & mask > 0 {
-                print!("Y ");
+                print!("🟡");
             } else {
-                print!(". ");
+                print!("⚪");
             }
 
             if i % WIDTH == 0 {
                 print!("\n");
             }
         }
-        print!("\n");
+        println!(" 0 1 2 3 4 5 6");
     }
 
     #[inline]
